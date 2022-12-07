@@ -1,12 +1,13 @@
-import { _decorator, Component, Node, Vec3 } from 'cc';
+import { _decorator, Component, Vec3, debug, CCObject } from 'cc';
 import { Player } from './Player';
 const { ccclass, property } = _decorator;
 
 @ccclass('CameraManager')
 export class CameraManager extends Component {
-    public player:Player
+    @property({type:Player})
+    private player;
+    
     start() {
-        this.player = this.getComponent(Player);
     }
 
     update(deltaTime: number) {
