@@ -1,9 +1,11 @@
 import { _decorator, Component, Collider2D, Contact2DType, IPhysics2DContact, director, systemEvent, SystemEventType, EventKeyboard, macro, Vec3, RigidBody2D, Vec2 } from 'cc';
+import { GameMN } from './GameMN';
 const { ccclass, property } = _decorator;
 
 @ccclass('Player')
 export class Player extends Component {
-    
+    @property({type:GameMN})
+    private gameMN;
     moveRight: boolean;
     moving: boolean;
     forceX : number;
@@ -13,12 +15,12 @@ export class Player extends Component {
     start() {
         this.moveRight = true;
         this.moving = false;
-        this.forceX = 200;
-        this.forceY = 10;
+        this.forceX = 1000;
+        this.forceY = 300;
         this.node.position = new Vec3(0, 0, 0);
         this.collider = this.getComponent(Collider2D);
         this.rigidbody = this.getComponent(RigidBody2D);
-        this.rigidbody.linearVelocity = new Vec2 (-this.forceX,this.forceY);
+        this.rigidbody.linearVelocity = new Vec2 (-this.forceX,0);
         this.moveRight = false;
         if (this.collider) {
             this.collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
@@ -26,30 +28,24 @@ export class Player extends Component {
         systemEvent.on(SystemEventType.KEY_DOWN, this.onKeyDown, this);
     }
 
-    PlayerMovement() : void {
-        let vector2 = new Vec2();
-        vector2 = this.rigidbody.linearVelocity;
-        vector2.y = this.forceY;
-        this.rigidbody.linearVelocity = vector2;
-        console.log(this.rigidbody.linearVelocity);
+    
         
-    }
+    
     update(deltaTime: number) {
-        this.PlayerMovement();
         let direction : number;
         if (this.moving == true)
        {
            if (this.moveRight == true)
            {
                direction = 1;
-               let newVelocity = new Vec2(direction*this.forceX,this.forceY);
+               let newVelocity = new Vec2(direction*this.forceX,0);
                this.rigidbody.linearVelocity = newVelocity;
                console.log(this.rigidbody.linearVelocity);
            }
            else
            {
                 direction = -1;
-                let newVelocity = new Vec2(direction*this.forceX,this.forceY);
+                let newVelocity = new Vec2(direction*this.forceX,0);
                 this.rigidbody.linearVelocity = newVelocity;
                 console.log(this.rigidbody.linearVelocity);
            }
@@ -58,7 +54,7 @@ export class Player extends Component {
     }
     onKeyDown (event: EventKeyboard) {
         switch(event.keyCode) {
-            case macro.KEY.a:
+            case macro.KEY.space:
                 console.log('Press a key');
                 if (this.moving == false)
                 {
@@ -83,8 +79,8 @@ export class Player extends Component {
         console.log(otherCollider.tag)
         if(otherCollider.tag == 1)
         {
-            
-            let newVelocity = new Vec2(0,this.forceY);
+            this.gameMN.score ++;
+            let newVelocity = new Vec2(0,0);
             this.rigidbody.linearVelocity = newVelocity;
             this.moving = false;
             console.log(this.rigidbody.linearVelocity);
