@@ -1,4 +1,4 @@
-import { _decorator, Component, Collider2D, Contact2DType, IPhysics2DContact, director, systemEvent, SystemEventType, EventKeyboard, macro, Vec3, RigidBody2D, Vec2 } from 'cc';
+import { _decorator, Component, Collider2D, Contact2DType, IPhysics2DContact, director, systemEvent, SystemEventType, EventKeyboard, macro, Vec3, RigidBody2D, Vec2, Prefab, ParticleSystem2D, instantiate, Quat, game } from 'cc';
 import { GameMN } from './GameMN';
 const { ccclass, property } = _decorator;
 
@@ -6,12 +6,15 @@ const { ccclass, property } = _decorator;
 export class Player extends Component {
     @property({type:GameMN})
     private gameMN;
+    @property({type:Prefab})
+    private explosion : ParticleSystem2D;
     moveRight: boolean;
     moving: boolean;
     forceX : number;
     forceY : number; 
     public rigidbody;
     public collider;
+    firstTime : boolean = true;
     start() {
         this.moveRight = true;
         this.moving = false;
@@ -28,7 +31,11 @@ export class Player extends Component {
         systemEvent.on(SystemEventType.KEY_DOWN, this.onKeyDown, this);
     }
 
-    
+    SpawnExplosion(vector : Vec3)
+    {
+        let ex = instantiate(this.explosion) as ParticleSystem2D;
+        ex.node.position = vector;
+    }
         
     
     update(deltaTime: number) {
@@ -54,7 +61,7 @@ export class Player extends Component {
     }
     onKeyDown (event: EventKeyboard) {
         switch(event.keyCode) {
-            case macro.KEY.space:
+            case macro.KEY.a:
                 console.log('Press a key');
                 if (this.moving == false)
                 {
@@ -73,18 +80,33 @@ export class Player extends Component {
                 break;
         }
     }
- 
+    OnContactWall(){
+        let newVelocity = new Vec2(0,0);
+        this.rigidbody.linearVelocity = newVelocity;
+        this.moving = false;
+    }
+    
+
     onBeginContact (selfCollider: Collider2D, otherCollider: Collider2D, contact: IPhysics2DContact | null) {
         // will be called once when two colliders begin to contact\
-        console.log(otherCollider.tag)
         if(otherCollider.tag == 1)
         {
-            this.gameMN.score ++;
-            let newVelocity = new Vec2(0,0);
-            this.rigidbody.linearVelocity = newVelocity;
-            this.moving = false;
-            console.log(this.rigidbody.linearVelocity);
+            if (this.firstTime == true)
+            {
+                this.OnContactWall();
+                this.firstTime = false;
+            }
+            else
+            {
+                this.gameMN.score = this.gameMN.score + 1;
+                this.OnContactWall();
+            }
 
+        }
+        if(otherCollider.tag == 2)
+        {
+            director.end();
+            director.loadScene("main");
         }
         
     }

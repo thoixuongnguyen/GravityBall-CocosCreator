@@ -11,8 +11,8 @@ export class GameMN extends Component {
     @property({type:Player})
     private player;
     @property({type:RichText})
-    public scoreText;
-    static score:number ;
+    public scoreText : RichText;
+    public score:number = 0;
     public listRetangle : UITransform[] = [];
     public listSquare : UITransform[] = [];
     timeCount : number = 0;
@@ -29,7 +29,7 @@ export class GameMN extends Component {
             this.Spawn();
             console.log("Spawn");
         }
-        this.scoreText.Text = GameMN.score.toString();
+        this.scoreText.string = this.score.toString();
     }
 
     
